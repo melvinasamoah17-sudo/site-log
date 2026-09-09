@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Site Log — Sign In</title>
+<link rel="stylesheet" href="/css/styles.css">
+</head>
+<body data-mode="in">
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Sign In</h1>
+      <p>Starting your shift — take a photo to check in.</p>
+    </div>
+    <a href="/index.html">← Home</a>
+  </header>
+
+  <div class="card" id="mainCard">
+    <div class="field">
+      <label for="nameInput">Your name</label>
+      <input type="text" id="nameInput" placeholder="e.g. Kwame Owusu" autocomplete="name">
+    </div>
+    <div class="field">
+      <label for="pinInput">PIN (4–6 digits — set on your first sign in)</label>
+      <input type="tel" id="pinInput" placeholder="••••" inputmode="numeric" maxlength="6">
+    </div>
+
+    <div class="status-row">
+      <span class="status-label">Current status</span>
+      <span class="status-pill none" id="statusPill">Not checked</span>
+    </div>
+    <div class="status-row">
+      <span class="status-label">Location</span>
+      <span class="status-pill none" id="locationPill">Checking…</span>
+    </div>
+
+    <div class="actions">
+      <button class="btn-in btn-full" id="continueBtn">Continue to Sign In</button>
+    </div>
+    <p class="error-text" id="mainError"></p>
+  </div>
+
+  <div class="card capture-panel" id="capturePanel">
+    <p class="capture-title">Sign in — take a photo</p>
+
+    <div class="camera-box" id="cameraBox">
+      <video id="cameraVideo" autoplay playsinline muted></video>
+    </div>
+    <canvas id="captureCanvas" style="display:none"></canvas>
+    <p class="error-text" id="cameraError"></p>
+
+    <div class="photo-thumbs" id="photoThumbs"></div>
+
+    <div class="actions">
+      <button class="btn-secondary" id="cancelBtn">Cancel</button>
+      <button class="btn-out" id="takePhotoBtn">Take photo</button>
+      <button class="btn-in" id="confirmBtn" disabled>Confirm</button>
+    </div>
+    <p class="note">Take as many photos as you need, then Confirm.</p>
+    <p class="error-text" id="captureError"></p>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<div class="success-overlay" id="successOverlay">
+  <div class="success-card">
+    <div class="success-icon">
+      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M5 13l4 4L19 7" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <h2 id="successTitle">Sign In Successful</h2>
+    <p id="successMessage">You're logged in with your photo and location.</p>
+    <button class="btn-in" id="successCloseBtn">Continue</button>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/js/config.js"></script>
+<script src="/js/capture.js"></script>
+</body>
+</html>

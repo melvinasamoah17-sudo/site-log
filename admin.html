@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Site Log — Admin</title>
+<link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+<div class="wrap wide">
+
+  <div class="login-split card" id="loginCard">
+    <div class="login-visual">
+      <img src="/images/logo.jpg" alt="Sweet Melodies 94.3 FM logo" class="login-logo">
+    </div>
+    <div class="login-form-panel">
+      <h1 class="login-title">Site Log — Admin</h1>
+      <p class="login-subtitle">Enter your details to sign in to your account</p>
+      <div class="field">
+        <label for="userInput">Email</label>
+        <input type="text" id="userInput" placeholder="you@example.com" autocomplete="username">
+      </div>
+      <div class="field">
+        <label for="passInput">Password</label>
+        <input type="password" id="passInput" placeholder="••••••••" autocomplete="current-password">
+      </div>
+      <button class="btn-in btn-full" id="loginBtn">Login</button>
+      <p class="error-text" id="loginError"></p>
+      <p class="note">Admin accounts are created in the Supabase dashboard (Authentication → Users), not here.</p>
+      <a href="/index.html" class="login-back-link">← Worker view</a>
+    </div>
+  </div>
+
+  <div id="dashboard" style="display:none;">
+    <header>
+      <div>
+        <h1>Site Log — Admin</h1>
+        <p>Review sign in/out records, photos, and location for inspection.</p>
+      </div>
+      <a href="/index.html">Worker view</a>
+    </header>
+
+    <div class="stat-grid">
+      <div class="card stat-card">
+        <div class="stat-value" id="statTotalWorkers">—</div>
+        <div class="stat-label">Total workers</div>
+      </div>
+      <div class="card stat-card">
+        <div class="stat-value" id="statSignedIn">—</div>
+        <div class="stat-label">Currently signed in</div>
+      </div>
+      <div class="card stat-card">
+        <div class="stat-value" id="statToday">—</div>
+        <div class="stat-label">Entries today</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <p class="capture-title" style="margin-bottom:4px;">Workplace location</p>
+      <p class="note" style="margin-top:0; margin-bottom:14px;">Workers must be within this radius to sign in or out. Stand at the actual work site before clicking "Use my current location".</p>
+      <div class="filters">
+        <div class="field">
+          <label for="settingLat">Latitude</label>
+          <input type="text" id="settingLat" placeholder="e.g. 5.6037">
+        </div>
+        <div class="field">
+          <label for="settingLng">Longitude</label>
+          <input type="text" id="settingLng" placeholder="e.g. -0.1870">
+        </div>
+        <div class="field">
+          <label for="settingRadius">Radius (meters)</label>
+          <input type="text" id="settingRadius" placeholder="150">
+        </div>
+      </div>
+      <div class="actions">
+        <button class="btn-secondary" id="useMyLocationBtn">Use my current location</button>
+        <button class="btn-in" id="saveSettingsBtn">Save</button>
+      </div>
+      <p class="error-text" id="settingsMsg"></p>
+      <p class="note" id="settingsCurrent"></p>
+    </div>
+
+    <div class="card">
+      <div class="filters">
+        <div class="field">
+          <label for="filterName">Filter by name</label>
+          <input type="text" id="filterName" placeholder="Any worker">
+        </div>
+        <div class="field">
+          <label for="filterFrom">From</label>
+          <input type="date" id="filterFrom">
+        </div>
+        <div class="field">
+          <label for="filterTo">To</label>
+          <input type="date" id="filterTo">
+        </div>
+      </div>
+      <div class="actions">
+        <button class="btn-in" id="applyFilters">Apply filters</button>
+        <button class="btn-secondary" id="exportBtn">Export CSV</button>
+        <button class="btn-secondary" id="logoutBtn">Log out</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div id="tableWrap">
+        <div class="empty">Loading…</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <p class="capture-title" style="margin-bottom:10px;">Generator Fuel &amp; Light Balance Checks</p>
+      <div id="checksTableWrap">
+        <div class="empty">Loading…</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <p class="capture-title" style="margin-bottom:10px;">Change password</p>
+      <div class="field">
+        <label for="newPass">New password (min 6 characters)</label>
+        <input type="password" id="newPass">
+      </div>
+      <button class="btn-secondary" id="changePassBtn">Update password</button>
+      <p class="error-text" id="passMsg"></p>
+    </div>
+  </div>
+</div>
+
+<div class="lightbox" id="lightbox"><img id="lightboxImg"></div>
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/js/config.js"></script>
+<script src="/js/admin.js"></script>
+</body>
+</html>

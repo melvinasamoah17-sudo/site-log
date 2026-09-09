@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Site Log — My Dashboard</title>
+<link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+<div class="wrap wide">
+  <header>
+    <div>
+      <h1>My Dashboard</h1>
+      <p>Your sign-in/out history and photos.</p>
+    </div>
+    <a href="/index.html">← Home</a>
+  </header>
+
+  <div class="card" id="loginCard">
+    <div class="field">
+      <label for="nameInput">Your name</label>
+      <input type="text" id="nameInput" placeholder="e.g. Kwame Owusu" autocomplete="name">
+    </div>
+    <div class="field">
+      <label for="pinInput">PIN</label>
+      <input type="tel" id="pinInput" placeholder="••••" inputmode="numeric" maxlength="6">
+    </div>
+    <button class="btn-in btn-full" id="viewBtn">View my activity</button>
+    <p class="error-text" id="loginError"></p>
+  </div>
+
+  <div id="dashboard" style="display:none;">
+    <div class="stat-grid">
+      <div class="card stat-card">
+        <div class="stat-value" id="statCurrent">—</div>
+        <div class="stat-label">Current status</div>
+      </div>
+      <div class="card stat-card">
+        <div class="stat-value" id="statWeek">—</div>
+        <div class="stat-label">Sign-ins this week</div>
+      </div>
+      <div class="card stat-card">
+        <div class="stat-value" id="statTotal">—</div>
+        <div class="stat-label">Total entries logged</div>
+      </div>
+    </div>
+
+    <div class="card" id="checklistCard">
+      <p class="capture-title">Generator Fuel &amp; Light Balance Check</p>
+      <p class="note" id="checklistGate"></p>
+
+      <div id="checklistForm" style="display:none;">
+        <div class="field">
+          <label for="lightBalanceInput">Light prepaid balance</label>
+          <input type="text" id="lightBalanceInput" placeholder="e.g. GHS 45.50 or 30 units">
+        </div>
+
+        <label>Generator fuel level photo</label>
+        <div class="camera-box" id="fuelCameraBox">
+          <video id="fuelCameraVideo" autoplay playsinline muted></video>
+        </div>
+        <canvas id="fuelCaptureCanvas" style="display:none"></canvas>
+        <p class="error-text" id="fuelCameraError"></p>
+        <div class="photo-thumbs" id="fuelPhotoThumbs"></div>
+        <div class="actions">
+          <button class="btn-out" id="fuelTakePhotoBtn">Take photo</button>
+        </div>
+
+        <div class="actions">
+          <button class="btn-in btn-full" id="submitChecklistBtn" disabled>Submit check</button>
+        </div>
+        <p class="error-text" id="checklistError"></p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div id="historyWrap"><div class="empty">Loading…</div></div>
+    </div>
+
+    <div class="actions">
+      <button class="btn-secondary" id="switchBtn">View a different name</button>
+    </div>
+  </div>
+</div>
+
+<div class="lightbox" id="lightbox"><img id="lightboxImg"></div>
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/js/config.js"></script>
+<script src="/js/worker-dashboard.js"></script>
+</body>
+</html>
