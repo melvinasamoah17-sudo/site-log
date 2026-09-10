@@ -10,7 +10,8 @@ const statCurrent = document.getElementById('statCurrent');
 const statWeek = document.getElementById('statWeek');
 const statTotal = document.getElementById('statTotal');
 const lightbox = document.getElementById('lightbox');
-const lightboxImg = document.getElementById('lightboxImg');
+const lightboxInner = document.getElementById('lightboxInner');
+const lightboxClose = document.getElementById('lightboxClose');
 const toastEl = document.getElementById('toast');
 
 const checklistGate = document.getElementById('checklistGate');
@@ -106,12 +107,10 @@ function renderDashboard(entries){
     return;
   }
   const rows = entries.map(e => {
-    const photos = (e.entry_photo_urls || []).filter(url => typeof url === 'string' && url.startsWith('http')).map(url =>
-      `<img src="${url}" data-full="${url}" alt="Site photo">`
-    ).join('') || '<span class="note">No photo</span>';
+    const urls = (e.entry_photo_urls || []).filter(url => typeof url === 'string' && url.startsWith('http'));
     return `
     <tr>
-      <td><div class="photo-cell">${photos}</div></td>
+      <td>${photoCellHtml(urls, e.entry_id)}</td>
       <td><span class="entry-type ${e.entry_type}">${e.entry_type === 'in' ? 'IN' : 'OUT'}</span></td>
       <td>${fmtDate(e.entry_created_at)}</td>
       <td>${fmtTimeOnly(e.entry_created_at)}</td>
@@ -120,20 +119,47 @@ function renderDashboard(entries){
   `;
   }).join('');
   historyWrap.innerHTML = `
+    <div class="table-scroll">
     <table>
-      <thead><tr><th>Photo</th><th>Type</th><th>Date</th><th>Time</th><th>Distance</th></tr></thead>
+      <thead><tr><th>Photos</th><th>Type</th><th>Date</th><th>Time</th><th>Distance</th></tr></thead>
       <tbody>${rows}</tbody>
     </table>
+    </div>
   `;
-  historyWrap.querySelectorAll('img[data-full]').forEach(img=>{
-    img.addEventListener('click', ()=>{
-      lightboxImg.src = img.dataset.full;
-      lightbox.classList.add('open');
-    });
+  historyWrap.querySelectorAll('.photo-cell-btn').forEach(btn => {
+    const row = entries.find(r => String(r.entry_id) === btn.dataset.galleryId);
+    if(!row) return;
+    const urls = (row.entry_photo_urls || []).filter(url => typeof url === 'string' && url.startsWith('http'));
+    btn.addEventListener('click', () => openGallery(urls));
   });
 }
 
-lightbox.addEventListener('click', ()=> lightbox.classList.remove('open'));
+function photoCellHtml(urls, rowId){
+  if(urls.length === 0) return '<span class="photo-cell-empty">No photo</span>';
+  const stackImgs = urls.slice(0, 3).map(url => `<img src="${url}" alt="">`).join('');
+  return `
+    <button type="button" class="photo-cell-btn" data-gallery-id="${rowId}">
+      <span class="photo-cell-stack">${stackImgs}</span>
+      <span class="photo-cell-count">${urls.length} photo${urls.length > 1 ? 's' : ''}</span>
+    </button>
+  `;
+}
+
+function openGallery(urls){
+  lightboxInner.querySelectorAll('img').forEach(img => img.remove());
+  urls.forEach(url => {
+    const img = document.createElement('img');
+    img.src = url;
+    img.alt = 'Site photo';
+    lightboxInner.appendChild(img);
+  });
+  lightbox.classList.add('open');
+}
+
+lightbox.addEventListener('click', (e)=>{
+  if(e.target === lightbox) lightbox.classList.remove('open');
+});
+lightboxClose.addEventListener('click', ()=> lightbox.classList.remove('open'));
 
 // ── Shift checklist: gated behind being currently signed in ──────────────
 
