@@ -15,7 +15,8 @@ const newPass = document.getElementById('newPass');
 const changePassBtn = document.getElementById('changePassBtn');
 const passMsg = document.getElementById('passMsg');
 const lightbox = document.getElementById('lightbox');
-const lightboxImg = document.getElementById('lightboxImg');
+const lightboxInner = document.getElementById('lightboxInner');
+const lightboxClose = document.getElementById('lightboxClose');
 const toastEl = document.getElementById('toast');
 
 const settingLat = document.getElementById('settingLat');
@@ -201,12 +202,11 @@ function renderTable(entries){
     const mapLink = hasLoc
       ? `<a href="https://www.google.com/maps?q=${e.lat},${e.lng}" target="_blank" rel="noopener">${e.distance_meters != null ? Math.round(e.distance_meters) + ' m' : 'View'}</a>`
       : '—';
-    const photos = (e.photo_urls || []).filter(url => typeof url === 'string' && url.startsWith('http')).map(url =>
-      `<img src="${url}" data-full="${url}" alt="Site photo">`
-    ).join('') || '<span class="note">No photo</span>';
+    const urls = (e.photo_urls || []).filter(url => typeof url === 'string' && url.startsWith('http'));
+    const photoCell = photoCellHtml(urls, e.id);
     return `
     <tr data-entry-id="${e.id}">
-      <td><div class="photo-cell">${photos}</div></td>
+      <td>${photoCell}</td>
       <td>${escapeHtml(e.name)}</td>
       <td><span class="entry-type ${e.type}">${e.type === 'in' ? 'IN' : 'OUT'}</span></td>
       <td>${fmtDate(e.created_at)}</td>
@@ -217,20 +217,52 @@ function renderTable(entries){
   `;
   }).join('');
   tableWrap.innerHTML = `
+    <div class="table-scroll">
     <table>
-      <thead><tr><th>Photo</th><th>Name</th><th>Type</th><th>Date</th><th>Time</th><th>Location</th><th></th></tr></thead>
+      <thead><tr><th>Photos</th><th>Name</th><th>Type</th><th>Date</th><th>Time</th><th>Location</th><th></th></tr></thead>
       <tbody>${rows}</tbody>
     </table>
+    </div>
   `;
-  tableWrap.querySelectorAll('img[data-full]').forEach(img=>{
-    img.addEventListener('click', ()=>{
-      lightboxImg.src = img.dataset.full;
-      lightbox.classList.add('open');
-    });
-  });
+  wireGalleryButtons(tableWrap, entries, 'photo_urls');
   tableWrap.querySelectorAll('.delete-entry-btn').forEach(btn=>{
     btn.addEventListener('click', ()=> deleteEntry(btn.dataset.id, btn));
   });
+}
+
+// Renders a small photo stack + count for a table cell. Clicking it opens
+// every photo for that row in the lightbox gallery (not just one).
+function photoCellHtml(urls, rowId){
+  if(urls.length === 0) return '<span class="photo-cell-empty">No photo</span>';
+  const stackImgs = urls.slice(0, 3).map(url => `<img src="${url}" alt="">`).join('');
+  return `
+    <button type="button" class="photo-cell-btn" data-gallery-id="${rowId}">
+      <span class="photo-cell-stack">${stackImgs}</span>
+      <span class="photo-cell-count">${urls.length} photo${urls.length > 1 ? 's' : ''}</span>
+    </button>
+  `;
+}
+
+// Attaches click handlers to every photo-cell button in a container,
+// opening the full set of photo URLs for that row in the lightbox.
+function wireGalleryButtons(container, rows, urlField){
+  container.querySelectorAll('.photo-cell-btn').forEach(btn => {
+    const row = rows.find(r => String(r.id) === btn.dataset.galleryId);
+    if(!row) return;
+    const urls = (row[urlField] || []).filter(url => typeof url === 'string' && url.startsWith('http'));
+    btn.addEventListener('click', () => openGallery(urls));
+  });
+}
+
+function openGallery(urls){
+  lightboxInner.querySelectorAll('img').forEach(img => img.remove());
+  urls.forEach(url => {
+    const img = document.createElement('img');
+    img.src = url;
+    img.alt = 'Site photo';
+    lightboxInner.appendChild(img);
+  });
+  lightbox.classList.add('open');
 }
 
 async function deleteEntry(id, btn){
@@ -293,7 +325,10 @@ changePassBtn.addEventListener('click', async ()=>{
   }
 });
 
-lightbox.addEventListener('click', ()=> lightbox.classList.remove('open'));
+lightbox.addEventListener('click', (e)=>{
+  if(e.target === lightbox) lightbox.classList.remove('open');
+});
+lightboxClose.addEventListener('click', ()=> lightbox.classList.remove('open'));
 
 supabaseClient.auth.getSession().then(({ data }) => {
   if(data.session){ showDashboard(); } else { showLogin(); }
@@ -325,12 +360,10 @@ function renderChecksTable(checks){
     return;
   }
   const rows = checks.map(c => {
-    const photos = (c.fuel_photo_urls || []).filter(url => typeof url === 'string' && url.startsWith('http')).map(url =>
-      `<img src="${url}" data-full="${url}" alt="Fuel photo">`
-    ).join('') || '<span class="note">No photo</span>';
+    const urls = (c.fuel_photo_urls || []).filter(url => typeof url === 'string' && url.startsWith('http'));
     return `
     <tr>
-      <td><div class="photo-cell">${photos}</div></td>
+      <td>${photoCellHtml(urls, c.id)}</td>
       <td>${escapeHtml(c.name)}</td>
       <td>${escapeHtml(c.light_balance)}</td>
       <td>${fmtDate(c.created_at)}</td>
@@ -340,17 +373,14 @@ function renderChecksTable(checks){
   `;
   }).join('');
   checksTableWrap.innerHTML = `
+    <div class="table-scroll">
     <table>
-      <thead><tr><th>Fuel Photo</th><th>Name</th><th>Light Balance</th><th>Date</th><th>Time</th><th></th></tr></thead>
+      <thead><tr><th>Fuel Photos</th><th>Name</th><th>Light Balance</th><th>Date</th><th>Time</th><th></th></tr></thead>
       <tbody>${rows}</tbody>
     </table>
+    </div>
   `;
-  checksTableWrap.querySelectorAll('img[data-full]').forEach(img=>{
-    img.addEventListener('click', ()=>{
-      lightboxImg.src = img.dataset.full;
-      lightbox.classList.add('open');
-    });
-  });
+  wireGalleryButtons(checksTableWrap, checks, 'fuel_photo_urls');
   checksTableWrap.querySelectorAll('.delete-check-btn').forEach(btn=>{
     btn.addEventListener('click', ()=> deleteCheck(btn.dataset.id, btn));
   });
